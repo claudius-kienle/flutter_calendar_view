@@ -16,6 +16,7 @@ class DayViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DayView(
+      controller: EventController(),
       key: state,
       width: width,
       startDuration: Duration(hours: 8),

@@ -189,6 +189,12 @@ extension MyList on List<CalendarEventData> {
   }
 }
 
-extension TimerOfDayExtension on TimeOfDay {
+extension TimeOfDayExtension on TimeOfDay {
   int get getTotalMinutes => hour * 60 + minute;
+
+  bool get isDayStart => hour == 0 && minute == 0;
+  static TimeOfDay fromMinutes([int totalMinutes = 0]) => TimeOfDay(
+        hour: totalMinutes ~/ 60,
+        minute: totalMinutes % 60,
+      );
 }

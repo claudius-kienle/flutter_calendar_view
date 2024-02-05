@@ -12,6 +12,7 @@ class WeekViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WeekView(
+      controller: EventController(),
       key: state,
       width: width,
       onEventTap: (events, date) {

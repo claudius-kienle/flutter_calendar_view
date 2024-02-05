@@ -16,6 +16,7 @@ class MonthViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MonthView(
+      controller: EventController(),
       key: state,
       width: width,
       onEventTap: (event, date) {

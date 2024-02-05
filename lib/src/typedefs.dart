@@ -17,8 +17,8 @@ typedef EventTileBuilder<T extends Object?> = Widget Function(
   DateTime date,
   List<CalendarEventData<T>> events,
   Rect boundary,
-  DateTime startDuration,
-  DateTime endDuration,
+  TimeOfDay startDuration,
+  TimeOfDay endDuration,
 );
 
 typedef DetectorBuilder<T extends Object?> = Widget Function({

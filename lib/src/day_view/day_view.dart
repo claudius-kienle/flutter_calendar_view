@@ -7,7 +7,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../calendar_constants.dart';
-import '../calendar_controller_provider.dart';
 import '../calendar_event_data.dart';
 import '../components/day_view_components.dart';
 import '../components/event_scroll_notifier.dart';
@@ -113,7 +112,7 @@ class DayView<T extends Object?> extends StatefulWidget {
   /// This will auto update day view when user adds events in controller.
   /// This controller will store all the events. And returns events
   /// for particular day.
-  final EventController<T>? controller;
+  final EventController<T> controller;
 
   /// Defines height occupied by one minute of interval.
   /// This will be used to calculate total height of day view.
@@ -219,7 +218,7 @@ class DayView<T extends Object?> extends StatefulWidget {
     this.eventTileBuilder,
     this.dateStringBuilder,
     this.timeStringBuilder,
-    this.controller,
+    required this.controller,
     this.showVerticalLine = true,
     this.pageTransitionDuration = const Duration(milliseconds: 300),
     this.pageTransitionCurve = Curves.ease,
@@ -311,8 +310,6 @@ class DayViewState<T extends Object?> extends State<DayView<T>> {
 
   late DetectorBuilder _dayDetectorBuilder;
 
-  EventController<T>? _controller;
-
   late ScrollController _scrollController;
 
   ScrollController get scrollController => _scrollController;
@@ -342,38 +339,8 @@ class DayViewState<T extends Object?> extends State<DayView<T>> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final newController = widget.controller ??
-        CalendarControllerProvider.of<T>(context).controller;
-
-    if (newController != _controller) {
-      _controller = newController;
-
-      _controller!
-        // Removes existing callback.
-        ..removeListener(_reloadCallback)
-
-        // Reloads the view if there is any change in controller or
-        // user adds new events.
-        ..addListener(_reloadCallback);
-    }
-  }
-
-  @override
   void didUpdateWidget(DayView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update controller.
-    final newController = widget.controller ??
-        CalendarControllerProvider.of<T>(context).controller;
-
-    if (newController != _controller) {
-      _controller?.removeListener(_reloadCallback);
-      _controller = newController;
-      _controller?.addListener(_reloadCallback);
-    }
-
     // Update date range.
     if (widget.minDay != oldWidget.minDay ||
         widget.maxDay != oldWidget.maxDay) {
@@ -394,7 +361,6 @@ class DayViewState<T extends Object?> extends State<DayView<T>> {
 
   @override
   void dispose() {
-    _controller?.removeListener(_reloadCallback);
     _pageController.dispose();
     super.dispose();
   }
@@ -484,13 +450,7 @@ class DayViewState<T extends Object?> extends State<DayView<T>> {
   ///
   /// This will throw [AssertionError] if controller is called before its
   /// initialization is complete.
-  EventController<T> get controller {
-    if (_controller == null) {
-      throw "EventController is not initialized yet.";
-    }
-
-    return _controller!;
-  }
+  EventController<T> get controller => widget.controller;
 
   /// Reloads page.
   ///
@@ -658,8 +618,8 @@ class DayViewState<T extends Object?> extends State<DayView<T>> {
     DateTime date,
     List<CalendarEventData<T>> events,
     Rect boundary,
-    DateTime startDuration,
-    DateTime endDuration,
+    TimeOfDay startDuration,
+    TimeOfDay endDuration,
   ) {
     if (events.isNotEmpty)
       return RoundedEventTile(

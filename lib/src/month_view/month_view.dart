@@ -104,7 +104,7 @@ class MonthView<T extends Object?> extends StatefulWidget {
   ///
   /// If [controller] is null it will take controller from
   /// [CalendarControllerProvider.controller].
-  final EventController<T>? controller;
+  final EventController<T> controller;
 
   /// Defines width of default border
   ///
@@ -155,7 +155,7 @@ class MonthView<T extends Object?> extends StatefulWidget {
     this.cellBuilder,
     this.minMonth,
     this.maxMonth,
-    this.controller,
+    required this.controller,
     this.initialMonth,
     this.borderSize = 1,
     this.useAvailableVerticalSpace = false,
@@ -210,8 +210,6 @@ class MonthViewState<T extends Object?> extends State<MonthView<T>> {
 
   late DateWidgetBuilder _headerBuilder;
 
-  EventController<T>? _controller;
-
   late VoidCallback _reloadCallback;
 
   @override
@@ -236,37 +234,12 @@ class MonthViewState<T extends Object?> extends State<MonthView<T>> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    final newController = widget.controller ??
-        CalendarControllerProvider.of<T>(context).controller;
-
-    if (newController != _controller) {
-      _controller = newController;
-
-      _controller!
-        // Removes existing callback.
-        ..removeListener(_reloadCallback)
-
-        // Reloads the view if there is any change in controller or
-        // user adds new events.
-        ..addListener(_reloadCallback);
-    }
-
     updateViewDimensions();
   }
 
   @override
   void didUpdateWidget(MonthView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update controller.
-    final newController = widget.controller ??
-        CalendarControllerProvider.of<T>(context).controller;
-
-    if (newController != _controller) {
-      _controller?.removeListener(_reloadCallback);
-      _controller = newController;
-      _controller?.addListener(_reloadCallback);
-    }
 
     // Update date range.
     if (widget.minMonth != oldWidget.minMonth ||
@@ -285,7 +258,6 @@ class MonthViewState<T extends Object?> extends State<MonthView<T>> {
 
   @override
   void dispose() {
-    _controller?.removeListener(_reloadCallback);
     _pageController.dispose();
     super.dispose();
   }
@@ -377,13 +349,7 @@ class MonthViewState<T extends Object?> extends State<MonthView<T>> {
   ///
   /// This will throw [AssertionError] if controller is called before its
   /// initialization is complete.
-  EventController<T> get controller {
-    if (_controller == null) {
-      throw "EventController is not initialized yet.";
-    }
-
-    return _controller!;
-  }
+  EventController<T> get controller => widget.controller;
 
   void _reload() {
     if (mounted) {

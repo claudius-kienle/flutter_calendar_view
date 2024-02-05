@@ -5,6 +5,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import '../calendar_event_data.dart';
 import '../constants.dart';
@@ -57,10 +58,10 @@ class OrganizedCalendarEventData<T extends Object?> {
   final List<CalendarEventData<T>> events;
 
   /// Start duration of event/event list.
-  final DateTime startDuration;
+  final TimeOfDay startDuration;
 
   /// End duration of event/event list.
-  final DateTime endDuration;
+  final TimeOfDay endDuration;
 
   /// Provides event data with its [left], [right], [top], and [bottom]
   /// boundary.
@@ -75,8 +76,8 @@ class OrganizedCalendarEventData<T extends Object?> {
   });
 
   OrganizedCalendarEventData.empty()
-      : startDuration = DateTime.now(),
-        endDuration = DateTime.now(),
+      : startDuration = TimeOfDay.now(),
+        endDuration = TimeOfDay.now(),
         right = 0,
         left = 0,
         events = const [],

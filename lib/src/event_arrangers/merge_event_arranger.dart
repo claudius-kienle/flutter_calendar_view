@@ -98,8 +98,8 @@ class MergeEventArranger<T extends Object?> extends EventArranger<T> {
           bottom: bottom,
           left: 0,
           right: 0,
-          startDuration: startTime.copyFromMinutes(eventStart),
-          endDuration: endTime.copyFromMinutes(eventEnd),
+          startDuration: TimeOfDayExtension.fromMinutes(eventStart),
+          endDuration: TimeOfDayExtension.fromMinutes(eventEnd),
           events: [event],
         );
 
@@ -127,10 +127,8 @@ class MergeEventArranger<T extends Object?> extends EventArranger<T> {
           bottom: bottom,
           left: 0,
           right: 0,
-          startDuration:
-              arrangedEventData.startDuration.copyFromMinutes(startDuration),
-          endDuration:
-              arrangedEventData.endDuration.copyFromMinutes(endDuration),
+          startDuration: TimeOfDayExtension.fromMinutes(startDuration),
+          endDuration: TimeOfDayExtension.fromMinutes(endDuration),
           events: arrangedEventData.events..add(event),
         );
 

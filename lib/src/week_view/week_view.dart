@@ -108,7 +108,7 @@ class WeekView<T extends Object?> extends StatefulWidget {
 
   /// Controller for Week view thia will refresh view when user adds or removes
   /// event from controller.
-  final EventController<T>? controller;
+  final EventController<T> controller;
 
   /// Defines height occupied by one minute of time span. This parameter will
   /// be used to calculate total height of Week view.
@@ -216,7 +216,7 @@ class WeekView<T extends Object?> extends StatefulWidget {
   /// Main widget for week view.
   const WeekView({
     Key? key,
-    this.controller,
+    required this.controller,
     this.eventTileBuilder,
     this.pageTransitionDuration = const Duration(milliseconds: 300),
     this.pageTransitionCurve = Curves.ease,
@@ -289,6 +289,7 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
   late double _height;
   late double _timeLineWidth;
   late double _hourHeight;
+  late double _lastScrollOffset;
   late DateTime _currentStartDate;
   late DateTime _currentEndDate;
   late DateTime _maxDate;
@@ -319,14 +320,6 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
   late double _weekTitleWidth;
   late int _totalDaysInWeek;
 
-  late VoidCallback _reloadCallback;
-
-  EventController<T>? _controller;
-
-  late ScrollController _scrollController;
-
-  ScrollController get scrollController => _scrollController;
-
   late List<WeekDays> _weekDays;
 
   final _scrollConfiguration = EventScrollConfiguration();
@@ -334,8 +327,7 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
   @override
   void initState() {
     super.initState();
-
-    _reloadCallback = _reload;
+    _lastScrollOffset = widget.scrollOffset;
 
     _setWeekDays();
     _setDateRange();
@@ -345,8 +337,6 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
     _regulateCurrentDate();
 
     _calculateHeights();
-    _scrollController =
-        ScrollController(initialScrollOffset: widget.scrollOffset);
     _pageController = PageController(initialPage: _currentIndex);
     _eventArranger = widget.eventArranger ?? SideEventArranger<T>();
 
@@ -354,38 +344,8 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final newController = widget.controller ??
-        CalendarControllerProvider.of<T>(context).controller;
-
-    if (_controller != newController) {
-      _controller = newController;
-
-      _controller!
-        // Removes existing callback.
-        ..removeListener(_reloadCallback)
-
-        // Reloads the view if there is any change in controller or
-        // user adds new events.
-        ..addListener(_reloadCallback);
-    }
-  }
-
-  @override
   void didUpdateWidget(WeekView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update controller.
-    final newController = widget.controller ??
-        CalendarControllerProvider.of<T>(context).controller;
-
-    if (newController != _controller) {
-      _controller?.removeListener(_reloadCallback);
-      _controller = newController;
-      _controller?.addListener(_reloadCallback);
-    }
-
     _setWeekDays();
 
     // Update date range.
@@ -408,7 +368,6 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
 
   @override
   void dispose() {
-    _controller?.removeListener(_reloadCallback);
     _pageController.dispose();
     super.dispose();
   }
@@ -480,7 +439,8 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
                             showVerticalLine: widget.showVerticalLines,
                             controller: controller,
                             hourHeight: _hourHeight,
-                            scrollController: _scrollController,
+                            scrollOffset: _lastScrollOffset,
+                            scrollListener: _scrollPageListener,
                             eventArranger: _eventArranger,
                             weekDays: _weekDays,
                             minuteSlotSize: widget.minuteSlotSize,
@@ -509,20 +469,7 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
   ///
   /// This will throw [AssertionError] if controller is called before its
   /// initialization is complete.
-  EventController<T> get controller {
-    if (_controller == null) {
-      throw "EventController is not initialized yet.";
-    }
-
-    return _controller!;
-  }
-
-  /// Reloads page.
-  void _reload() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
+  EventController<T> get controller => widget.controller;
 
   void _setWeekDays() {
     _weekDays = widget.weekDays.toSet().toList();
@@ -770,8 +717,8 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
       DateTime date,
       List<CalendarEventData<T>> events,
       Rect boundary,
-      DateTime startDuration,
-      DateTime endDuration) {
+      TimeOfDay startDuration,
+      TimeOfDay endDuration) {
     if (events.isNotEmpty)
       return RoundedEventTile(
         borderRadius: BorderRadius.circular(6.0),
@@ -974,21 +921,13 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
     );
   }
 
-  /// Animate to specific scroll controller offset
-  void animateTo(
-    double offset, {
-    Duration duration = const Duration(milliseconds: 200),
-    Curve curve = Curves.linear,
-  }) {
-    _scrollController.animateTo(
-      offset,
-      duration: duration,
-      curve: curve,
-    );
-  }
-
   /// check if any dates contains current date or not.
   /// Returns true if it does else false.
   bool _showLiveTimeIndicator(List<DateTime> dates) =>
       dates.any((date) => date.compareWithoutTime(DateTime.now()));
+
+  /// Listener for every week page ScrollController
+  void _scrollPageListener(ScrollController controller) {
+    _lastScrollOffset = controller.offset;
+  }
 }

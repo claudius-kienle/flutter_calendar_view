@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 
 import '../calendar_view.dart';
+import 'calendar_event_data_meta.dart';
 
 @immutable
 
@@ -16,12 +17,12 @@ class CalendarEventData<T extends Object?> {
   /// Defines the start time of the event.
   /// [endTime] and [startTime] will defines time on same day.
   /// This is required when you are using [CalendarEventData] for [DayView]
-  final DateTime? startTime;
+  final TimeOfDay? startTime;
 
   /// Defines the end time of the event.
   /// [endTime] and [startTime] defines time on same day.
   /// This is required when you are using [CalendarEventData] for [DayView]
-  final DateTime? endTime;
+  final TimeOfDay? endTime;
 
   /// Title of the event.
   final String title;
@@ -44,10 +45,13 @@ class CalendarEventData<T extends Object?> {
   /// Define style of description.
   final TextStyle? descriptionStyle;
 
+  final List<CalendarEventDataMeta> eventMetadata;
+
   /// {@macro calendar_event_data_doc}
   CalendarEventData({
     required this.title,
     required DateTime date,
+    required this.eventMetadata,
     this.description,
     this.event,
     this.color = Colors.blue,
@@ -88,7 +92,8 @@ class CalendarEventData<T extends Object?> {
     return currentDate == date ||
         currentDate == endDate ||
         (currentDate.isBefore(endDate.withoutTime) &&
-            currentDate.isAfter(date.withoutTime));
+            currentDate.isAfter(date.withoutTime)) ||
+        eventMetadata.any((e) => e.occursOnDate(currentDate));
   }
 
   /// Returns event data in [Map<String, dynamic>] format.
@@ -111,10 +116,11 @@ class CalendarEventData<T extends Object?> {
     String? description,
     T? event,
     Color? color,
-    DateTime? startTime,
-    DateTime? endTime,
+    TimeOfDay? startTime,
+    TimeOfDay? endTime,
     TextStyle? titleStyle,
     TextStyle? descriptionStyle,
+    List<CalendarEventDataMeta>? eventMetadata,
     DateTime? endDate,
     DateTime? date,
   }) {
@@ -129,6 +135,7 @@ class CalendarEventData<T extends Object?> {
       endDate: endDate ?? this.endDate,
       event: event ?? this.event,
       titleStyle: titleStyle ?? this.titleStyle,
+      eventMetadata: eventMetadata ?? this.eventMetadata,
     );
   }
 
@@ -145,11 +152,11 @@ class CalendarEventData<T extends Object?> {
         ((startTime == null && other.startTime == null) ||
             (startTime != null &&
                 other.startTime != null &&
-                startTime!.hasSameTimeAs(other.startTime!))) &&
+                (startTime! == other.startTime!))) &&
         ((endTime == null && other.endTime == null) ||
             (endTime != null &&
                 other.endTime != null &&
-                endTime!.hasSameTimeAs(other.endTime!))) &&
+                (endTime! == other.endTime!))) &&
         title == other.title &&
         color == other.color &&
         titleStyle == other.titleStyle &&
