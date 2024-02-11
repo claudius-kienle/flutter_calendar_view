@@ -235,21 +235,34 @@ class _InternalWeekViewPageState<T extends Object?>
                 ),
                 ...List.generate(
                   filteredDates.length,
-                  (index) => SizedBox(
-                    height: widget.weekTitleHeight,
-                    width: widget.weekTitleWidth,
-                    child: widget.weekDayBuilder(
-                      filteredDates[index],
+                  (index) => Stack(children: [
+                    CustomPaint(
+                      size: Size(widget.weekTitleWidth, widget.weekTitleHeight),
+                      painter: VerticalLinePainter(
+                        lineColor: widget.hourIndicatorSettings.color,
+                        lineHeight: widget.hourIndicatorSettings.height,
+                        offset: (index == 0)
+                            ? 0
+                            : -widget.hourIndicatorSettings.height / 2,
+                        verticalLineOffset: widget.verticalLineOffset,
+                      ),
                     ),
-                  ),
+                    SizedBox(
+                      height: widget.weekTitleHeight,
+                      width: widget.weekTitleWidth,
+                      child: widget.weekDayBuilder(
+                        filteredDates[index],
+                      ),
+                    )
+                  ]),
                 )
               ],
             ),
           ),
-          Divider(
-            thickness: 1,
-            height: 1,
-          ),
+          // Divider(
+          //   thickness: 1,
+          //   height: 1,
+          // ),
           SizedBox(
             width: widget.width,
             child: Row(
@@ -344,7 +357,8 @@ class _InternalWeekViewPageState<T extends Object?>
                             ...List.generate(
                               filteredDates.length,
                               (index) => Container(
-                                decoration: widget.showVerticalLine
+                                decoration: widget.showVerticalLine &&
+                                        index != filteredDates.length - 1
                                     ? BoxDecoration(
                                         border: Border(
                                           right: BorderSide(

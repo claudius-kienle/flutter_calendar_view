@@ -282,3 +282,49 @@ class CurrentTimeLinePainter extends CustomPainter {
           height != oldDelegate.height ||
           offset != oldDelegate.offset);
 }
+
+/// Paints 24 hour lines.
+class VerticalLinePainter extends CustomPainter {
+  /// Color of hour line
+  final Color lineColor;
+
+  /// Height of hour line
+  final double lineHeight;
+
+  /// Offset of hour line from left.
+  final double offset;
+
+  /// left offset of vertical line.
+  final double verticalLineOffset;
+
+  final double percentageLineHeight;
+
+  /// Paints 24 hour lines.
+  VerticalLinePainter({
+    required this.lineColor,
+    required this.lineHeight,
+    required this.offset,
+    this.percentageLineHeight = .75,
+    this.verticalLineOffset = 10,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = lineColor
+      ..strokeWidth = lineHeight;
+
+    canvas.drawLine(
+        Offset(offset + verticalLineOffset, size.height * percentageLineHeight),
+        Offset(offset + verticalLineOffset, size.height),
+        paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return oldDelegate is HourLinePainter &&
+        (oldDelegate.lineColor != lineColor ||
+            oldDelegate.offset != offset ||
+            lineHeight != oldDelegate.lineHeight);
+  }
+}
