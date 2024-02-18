@@ -3,6 +3,7 @@
 // that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 import '../calendar_constants.dart';
 import '../calendar_controller_provider.dart';
@@ -307,7 +308,7 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
   late HourIndicatorSettings _liveTimeIndicatorSettings;
   late HourIndicatorSettings _quarterHourIndicatorSettings;
 
-  late PageController _pageController;
+  late PreloadPageController _pageController;
 
   late DateWidgetBuilder _timeLineBuilder;
   late EventTileBuilder<T> _eventTileBuilder;
@@ -337,7 +338,7 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
     _regulateCurrentDate();
 
     _calculateHeights();
-    _pageController = PageController(initialPage: _currentIndex);
+    _pageController = PreloadPageController(initialPage: _currentIndex);
     _eventArranger = widget.eventArranger ?? SideEventArranger<T>();
 
     _assignBuilders();
@@ -395,7 +396,7 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
                   child: SizedBox(
                     height: _height,
                     width: _width,
-                    child: PageView.builder(
+                    child: PreloadPageView.builder(
                       itemCount: _totalWeeks,
                       controller: _pageController,
                       onPageChanged: _onPageChange,
