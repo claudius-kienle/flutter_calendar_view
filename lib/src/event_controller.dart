@@ -7,10 +7,32 @@ import 'dart:collection';
 import 'calendar_event_data.dart';
 import 'typedefs.dart';
 
-class EventController<T extends Object?> {
+abstract class EventController<T extends Object?> {
+  /// Returns events on given day.
+  ///
+  /// To overwrite default behaviour of this function,
+  /// provide [eventFilter] argument in [EventController] constructor.
+  ///
+  /// if [includeFullDayEvents] is true, it will include full day events
+  /// as well else, it will exclude full day events.
+  ///
+  /// NOTE: If [eventFilter] is set i.e, not null, [includeFullDayEvents] will
+  /// have no effect. As what events to be included will be decided
+  /// by the [eventFilter].
+  ///
+  /// To get full day events exclusively, check [getFullDayEvent] method.
+  ///
+  List<CalendarEventData<T>> getEventsOnDay(DateTime date,
+      {bool includeFullDayEvents = true});
+
+  /// Returns full day events on given day.
+  List<CalendarEventData<T>> getFullDayEvent(DateTime date);
+}
+
+class EventControllerImpl<T extends Object?> extends EventController<T> {
   /// Calendar controller to control all the events related operations like,
   /// adding event, removing event, etc.
-  EventController({
+  EventControllerImpl({
     /// This method will provide list of events on particular date.
     ///
     /// This method is use full when you have recurring events.
@@ -46,6 +68,7 @@ class EventController<T extends Object?> {
   ///
   /// To get full day events exclusively, check [getFullDayEvent] method.
   ///
+  @override
   List<CalendarEventData<T>> getEventsOnDay(DateTime date,
       {bool includeFullDayEvents = true}) {
     final events = allEvents
@@ -56,6 +79,7 @@ class EventController<T extends Object?> {
   }
 
   /// Returns full day events on given day.
+  @override
   List<CalendarEventData<T>> getFullDayEvent(DateTime date) {
     final events = getEventsOnDay(date, includeFullDayEvents: true)
         .where((e) => e.isFullDayEvent)
