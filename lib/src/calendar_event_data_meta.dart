@@ -9,11 +9,13 @@ class CalendarEventDataMeta {
   final DateTime repeatStart;
   final DateTime? repeatEnd;
   final int? repeatWeekday;
+  final int repeatInterval;
 
   CalendarEventDataMeta({
     required this.repeatStart,
     this.repeatEnd,
     this.repeatWeekday,
+    required this.repeatInterval,
   });
 
   bool occursOnDate(DateTime date) {
@@ -24,8 +26,21 @@ class CalendarEventDataMeta {
       return false;
     }
 
-    if (repeatWeekday != null && repeatWeekday != date.weekday) {
-      return false;
+    if (repeatWeekday != null) {
+      if (repeatWeekday != date.weekday) {
+        return false;
+      }
+
+      final daysDiff = date.difference(repeatStart).inDays;
+
+      if (daysDiff < 0) {
+        return false;
+      }
+
+      final weeks = (daysDiff / 7).ceil();
+      if (weeks % repeatInterval != 0) {
+        return false;
+      }
     }
 
     return true;

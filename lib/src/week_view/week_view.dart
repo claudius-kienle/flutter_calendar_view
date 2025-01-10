@@ -143,7 +143,7 @@ class WeekView<T extends Object?> extends StatefulWidget {
   final Color backgroundColor;
 
   /// Scroll offset of week view page.
-  final double scrollOffset;
+  final double? scrollOffset;
 
   /// Called when user taps on event tile.
   final CellTapCallback<T>? onEventTap;
@@ -243,7 +243,7 @@ class WeekView<T extends Object?> extends StatefulWidget {
     this.weekDayBuilder,
     this.weekNumberBuilder,
     this.backgroundColor = Colors.white,
-    this.scrollOffset = 0.0,
+    this.scrollOffset,
     this.onEventTap,
     this.onDateLongPress,
     this.onDateTap,
@@ -328,8 +328,6 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
   @override
   void initState() {
     super.initState();
-    _lastScrollOffset = widget.scrollOffset;
-
     _setWeekDays();
     _setDateRange();
 
@@ -338,6 +336,7 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
     _regulateCurrentDate();
 
     _calculateHeights();
+    _lastScrollOffset = widget.scrollOffset ?? scrollOffsetForNow();
     _pageController = PreloadPageController(initialPage: _currentIndex);
     _eventArranger = widget.eventArranger ?? SideEventArranger<T>();
 
@@ -930,5 +929,16 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
   /// Listener for every week page ScrollController
   void _scrollPageListener(ScrollController controller) {
     _lastScrollOffset = controller.offset;
+  }
+
+  double scrollOffsetForNow() {
+    final offSetForSingleMinute = _height / 24 / 60;
+    final currentTime = TimeOfDay.now();
+    final currentDuration =
+        Duration(hours: currentTime.hour, minutes: currentTime.minute)
+                .inMinutes -
+            60; // show previous 60 min too
+    return offSetForSingleMinute *
+        (currentDuration > 3600 ? 3600 : currentDuration);
   }
 }
