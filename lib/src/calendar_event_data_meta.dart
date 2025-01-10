@@ -31,13 +31,17 @@ class CalendarEventDataMeta {
         return false;
       }
 
-      final daysDiff = date.difference(repeatStart).inDays;
+      final mondayDate = date.subtract(Duration(days: date.weekday - 1));
+      final mondayRepeatStart =
+          repeatStart.subtract(Duration(days: repeatStart.weekday - 1));
+
+      final daysDiff = mondayDate.difference(mondayRepeatStart).inDays;
 
       if (daysDiff < 0) {
         return false;
       }
 
-      final weeks = (daysDiff / 7).ceil();
+      final weeks = daysDiff ~/ 7;
       if (weeks % repeatInterval != 0) {
         return false;
       }
