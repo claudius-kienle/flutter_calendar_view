@@ -402,7 +402,7 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
     _lastScrollOffset = widget.scrollOffset;
 
     _scrollController =
-        ScrollController(initialScrollOffset: widget.scrollOffset);
+        TrackingScrollController(initialScrollOffset: widget.scrollOffset);
 
     _startHour = widget.startHour;
     _endHour = widget.endHour;

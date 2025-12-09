@@ -39,19 +39,22 @@ class RoundedEventTile extends StatelessWidget {
   /// Style for description
   final TextStyle? descriptionStyle;
 
+  final BoxBorder? border;
+
   /// This is default tile to display in day view.
-  const RoundedEventTile({
-    Key? key,
-    required this.title,
-    this.padding = EdgeInsets.zero,
-    this.margin = EdgeInsets.zero,
-    this.description,
-    this.borderRadius = BorderRadius.zero,
-    this.totalEvents = 1,
-    this.backgroundColor = Colors.blue,
-    this.titleStyle,
-    this.descriptionStyle,
-  }) : super(key: key);
+  const RoundedEventTile(
+      {Key? key,
+      required this.title,
+      this.padding = EdgeInsets.zero,
+      this.margin = EdgeInsets.zero,
+      this.description,
+      this.borderRadius = BorderRadius.zero,
+      this.totalEvents = 1,
+      this.backgroundColor = Colors.blue,
+      this.titleStyle,
+      this.descriptionStyle,
+      this.border})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +64,7 @@ class RoundedEventTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: borderRadius,
+        border: border,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

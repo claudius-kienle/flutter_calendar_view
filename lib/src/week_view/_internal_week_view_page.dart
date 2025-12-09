@@ -251,6 +251,9 @@ class _InternalWeekViewPageState<T extends Object?>
     widget.scrollListener(scrollController);
   }
 
+  bool sameDay(DateTime d1, DateTime d2) =>
+      d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
+
   @override
   Widget build(BuildContext context) {
     final filteredDates = _filteredDate();
@@ -474,6 +477,22 @@ class _InternalWeekViewPageState<T extends Object?>
                                       heightPerMinute: widget.heightPerMinute,
                                       endHour: widget.endHour,
                                     ),
+                                    if (widget.showLiveLine &&
+                                        widget.liveTimeIndicatorSettings
+                                                .height >
+                                            0 &&
+                                        sameDay(filteredDates[index],
+                                            DateTime.now()))
+                                      IgnorePointer(
+                                          child: LiveTimeIndicator(
+                                        liveTimeIndicatorSettings:
+                                            widget.liveTimeIndicatorSettings,
+                                        width: widget.weekTitleWidth,
+                                        height: widget.height,
+                                        startHour: widget.startHour,
+                                        heightPerMinute: widget.heightPerMinute,
+                                        timeLineWidth: 0,
+                                      ))
                                   ],
                                 ),
                               ),
@@ -496,18 +515,6 @@ class _InternalWeekViewPageState<T extends Object?>
                       endHour: widget.endHour,
                       onTimestampTap: widget.onTimestampTap,
                     ),
-                    if (widget.showLiveLine &&
-                        widget.liveTimeIndicatorSettings.height > 0)
-                      LiveTimeIndicator(
-                        liveTimeIndicatorSettings:
-                            widget.liveTimeIndicatorSettings,
-                        width: widget.width,
-                        height: widget.height,
-                        heightPerMinute: widget.heightPerMinute,
-                        timeLineWidth: widget.timeLineWidth,
-                        startHour: widget.startHour,
-                        endHour: widget.endHour,
-                      ),
                   ],
                 ),
               ),
