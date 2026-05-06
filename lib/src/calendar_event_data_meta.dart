@@ -18,11 +18,19 @@ class CalendarEventDataMeta {
     required this.repeatInterval,
   });
 
-  bool occursOnDate(DateTime date) {
+  static DateTime dateOnly(DateTime dateTime) {
+    return DateTime.utc(dateTime.year, dateTime.month, dateTime.day);
+  }
+
+  bool occursOnDate(DateTime dateWithTime) {
+    final date = dateOnly(dateWithTime);
+    final repeatStart = dateOnly(this.repeatStart);
+    final repeatEnd = this.repeatEnd != null ? dateOnly(this.repeatEnd!) : null;
+
     if (repeatStart.isAfter(date)) {
       return false;
     }
-    if (repeatEnd != null && repeatEnd!.isBefore(date)) {
+    if (repeatEnd != null && repeatEnd.isBefore(date)) {
       return false;
     }
 
