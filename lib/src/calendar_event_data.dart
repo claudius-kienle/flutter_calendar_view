@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import '../calendar_view.dart';
 
 @immutable
-
 /// {@macro calendar_event_data_doc}
 class CalendarEventData<T extends Object?> {
   /// Specifies date on which all these events are.
@@ -44,7 +43,8 @@ class CalendarEventData<T extends Object?> {
   /// Define style of description.
   final TextStyle? descriptionStyle;
 
-  final List<CalendarEventDataMeta> eventMetadata;
+  /// Define reoccurrence settings
+  final RecurrenceSettings? recurrenceSettings;
 
   /// {@macro calendar_event_data_doc}
   CalendarEventData({
@@ -57,10 +57,10 @@ class CalendarEventData<T extends Object?> {
     this.endTime,
     this.titleStyle,
     this.descriptionStyle,
-    this.eventMetadata = const [],
+    this.recurrenceSettings,
     DateTime? endDate,
-  })  : _endDate = endDate?.withoutTime,
-        date = date.withoutTime;
+  }) : _endDate = endDate?.withoutTime,
+       date = date.withoutTime;
 
   DateTime get endDate => _endDate ?? date;
 
@@ -85,7 +85,7 @@ class CalendarEventData<T extends Object?> {
   }
 
   bool get isRecurringEvent {
-    return eventMetadata.isNotEmpty;
+    return recurrenceSettings != null;
   }
 
   Duration get duration {
@@ -97,8 +97,9 @@ class CalendarEventData<T extends Object?> {
     final start = now.copyFromMinutes(startTime!.getTotalMinutes);
 
     if (end.isDayStart) {
-      final difference =
-          end.add(Duration(days: 1) - Duration(seconds: 1)).difference(start);
+      final difference = end
+          .add(Duration(days: 1) - Duration(seconds: 1))
+          .difference(start);
 
       return difference + Duration(seconds: 1);
     } else {
@@ -119,15 +120,15 @@ class CalendarEventData<T extends Object?> {
   /// Returns event data in [Map<String, dynamic>] format.
   ///
   Map<String, dynamic> toJson() => {
-        "date": date,
-        "startTime": startTime,
-        "endTime": endTime,
-        "event": event,
-        "title": title,
-        "description": description,
-        "endDate": endDate,
-        "eventMetadata": eventMetadata,
-      };
+    "date": date,
+    "startTime": startTime,
+    "endTime": endTime,
+    "event": event,
+    "title": title,
+    "description": description,
+    "endDate": endDate,
+    "recurrenceSettings": recurrenceSettings,
+  };
 
   /// Returns new object of [CalendarEventData] with the updated values defined
   /// as the arguments.
@@ -143,7 +144,7 @@ class CalendarEventData<T extends Object?> {
     TextStyle? descriptionStyle,
     DateTime? endDate,
     DateTime? date,
-    List<CalendarEventDataMeta>? eventMetadata,
+    RecurrenceSettings? recurrenceSettings,
   }) {
     return CalendarEventData(
       title: title ?? this.title,
@@ -156,7 +157,7 @@ class CalendarEventData<T extends Object?> {
       endDate: endDate ?? this.endDate,
       event: event ?? this.event,
       titleStyle: titleStyle ?? this.titleStyle,
-      eventMetadata: eventMetadata ?? this.eventMetadata,
+      recurrenceSettings: recurrenceSettings ?? this.recurrenceSettings,
     );
   }
 

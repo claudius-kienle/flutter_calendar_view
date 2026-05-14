@@ -163,6 +163,36 @@ class EventController<T extends Object?> extends ChangeNotifier {
   }
   //#endregion
 
+//#region Private Methods
+  void _deleteCurrentEvent(DateTime date, CalendarEventData<T> event) {
+    final excludeDates = event.recurrenceSettings?.excludeDates ?? []
+      ..add(date);
+    final updatedRecurrenceSettings =
+        event.recurrenceSettings?.copyWith(excludeDates: excludeDates);
+    final updatedEvent =
+        event.copyWith(recurrenceSettings: updatedRecurrenceSettings);
+    update(event, updatedEvent);
+  }
+
+  /// If the selected date to delete the event is the same as the event's start date, delete all recurrences.
+  /// Otherwise, delete the event on the selected date and all subsequent recurrences.
+  void _deleteFollowingEvents(DateTime date, CalendarEventData<T> event) {
+    final newEndDate = date.subtract(
+      const Duration(days: 1),
+    );
+    final updatedRecurrenceSettings = event.recurrenceSettings?.copyWith(
+      recurrenceRule: event.recurrenceSettings?.recurrenceRule?.copyWith(
+        until: newEndDate,
+      ),
+    );
+    if (date == event.date) {
+      remove(event);
+    } else {
+      final updatedEvent =
+          event.copyWith(recurrenceSettings: updatedRecurrenceSettings);
+      update(event, updatedEvent);
+    }
+  }
 //#endregion
 }
 
@@ -333,6 +363,32 @@ class CalendarData<T extends Object?> {
   }
   //#endregion
 
+  bool _handleRecurrence({
+    required DateTime currentDate,
+    required DateTime eventStartDate,
+    required DateTime eventEndDate,
+    required RecurrenceSettings recurrenceSettings,
+  }) {
+    final recurrenceEndDate = recurrenceSettings.recurrenceRule?.until;
+    final isExcluded =
+        (recurrenceEndDate != null && currentDate.isAfter(recurrenceEndDate)) ||
+            (recurrenceSettings.excludeDates?.contains(currentDate) ?? false);
+    if (isExcluded) {
+      return false;
+    }
+
+    return recurrenceSettings.recurrenceRule
+        .getInstances(
+            start: eventStartDate.toUtc(),
+            after: currentDate.toUtc(),
+            includeAfter: true,
+            before: currentDate.toUtc(),
+            includeBefore: true)
+        .isNotEmpty;
+  }
+
+  //#endregion
+
   //#region Data Fetch Methods
   List<CalendarEventData<T>> getEventsOnDay(DateTime date,
       {bool includeFullDayEvents = true}) {
@@ -379,7 +435,20 @@ class CalendarData<T extends Object?> {
     for (final event in _recurringEventsList) {
       // recurrenceSettings is force casted because events in
       // _recurringEventsList are added only if recurrenceSettings exists
-      if (event.eventMetadata.any((r) => r.occursOnDate(date))) {
+      final recurrenceSettings = event.recurrenceSettings!;
+
+      if (date.isBefore(event.date)) {
+        continue;
+      }
+
+      final isRecurrence = _handleRecurrence(
+        currentDate: date,
+        eventStartDate: event.date,
+        eventEndDate: event.endDate,
+        recurrenceSettings: recurrenceSettings,
+      );
+
+      if (isRecurrence) {
         events.add(event);
       }
     }
