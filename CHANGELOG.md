@@ -17,6 +17,7 @@
 - [BREAKING] Renamed `multiDayTileColor` and `multiDayTextColor` to `weekDayTileColor` and `weekDayTextColor` in `MultiDayViewThemeData`.
 - `MultiDayView` week day title background now uses `weekDayTileColor` from `MultiDayViewThemeData` instead of `headerBackgroundColor`, matching `WeekView`.
 - Fixed `MultiDayView` not applying `pageBackgroundColor` from `MultiDayViewThemeData`.
+- Improved swipe performance of `DayView`, `WeekView`, `MultiDayView` and `MonthView`: changing the page now only rebuilds the header instead of every page with all of its event tiles.
 
 # [2.0.0 - 17 Mar 2026](https://github.com/SimformSolutionsPvtLtd/flutter_calendar_view/tree/2.0.0)
 
