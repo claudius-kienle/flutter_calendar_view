@@ -477,8 +477,9 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
     super.initState();
     _lastScrollOffset = widget.scrollOffset;
 
-    _scrollController =
-        ZoomScrollController(initialScrollOffset: widget.scrollOffset);
+    _scrollController = _TrackingZoomScrollController(
+      initialScrollOffset: widget.scrollOffset,
+    );
 
     _startHour = widget.startHour;
     _endHour = widget.endHour;
@@ -1213,4 +1214,41 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
 class WeekHeader {
   /// Hide Header Widget
   static Widget hidden(DateTime date, DateTime date1) => SizedBox.shrink();
+}
+
+/// A [ZoomScrollController] that, like [TrackingScrollController], hands the
+/// offset of the page scrolled last to every page attached after it, so that
+/// swiping to another week keeps the time of day that was scrolled to.
+class _TrackingZoomScrollController extends ZoomScrollController {
+  _TrackingZoomScrollController({double initialScrollOffset = 0.0})
+      : super(initialScrollOffset: initialScrollOffset);
+
+  final _positionToListener = <ScrollPosition, VoidCallback>{};
+  double? _lastUpdatedOffset;
+
+  @override
+  double get initialScrollOffset =>
+      _lastUpdatedOffset ?? super.initialScrollOffset;
+
+  @override
+  void attach(ScrollPosition position) {
+    super.attach(position);
+    _positionToListener[position] = () => _lastUpdatedOffset = position.pixels;
+    position.addListener(_positionToListener[position]!);
+  }
+
+  @override
+  void detach(ScrollPosition position) {
+    super.detach(position);
+    position.removeListener(_positionToListener.remove(position)!);
+    if (_positionToListener.isEmpty) _lastUpdatedOffset = null;
+  }
+
+  @override
+  void dispose() {
+    for (final position in positions) {
+      position.removeListener(_positionToListener[position]!);
+    }
+    super.dispose();
+  }
 }
