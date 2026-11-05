@@ -614,9 +614,13 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
     _runAfterPageTransition(() {
       if (!_scrollController.hasClients) return;
 
+      // every week page the PageView keeps built is attached to this
+      // controller, so `position` (which needs a single one) throws. The pages
+      // have the same height, so any of them gives the extents.
+      final position = _scrollController.positions.first;
       final clampedOffset = offset.clamp(
-        _scrollController.position.minScrollExtent,
-        _scrollController.position.maxScrollExtent,
+        position.minScrollExtent,
+        position.maxScrollExtent,
       );
 
       _lastScrollOffset = clampedOffset.toDouble();
