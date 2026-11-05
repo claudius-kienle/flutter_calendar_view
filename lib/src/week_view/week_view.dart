@@ -1069,7 +1069,9 @@ class WeekViewState<T extends Object?> extends State<WeekView<T>> {
       startHour: startHour,
       endHour: endHour,
       timelineWidth: widget.timeLineWidth,
-      textDirection: Directionality.of(context),
+      // called while a week page builds, when this (parent) state can already
+      // be deactivated, so the lookup finds nothing in release builds
+      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
     );
   }
 
