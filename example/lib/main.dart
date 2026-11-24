@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:calendar_view/calendar_view.dart';
 import 'package:example/theme/app_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'l10n/app_localizations.dart';

@@ -1,7 +1,7 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:example/theme/app_colors.dart';
 import 'package:example/widgets/delete_event_dialog.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../extension.dart';
 import 'create_event_page.dart';

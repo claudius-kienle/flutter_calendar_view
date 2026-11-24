@@ -2,7 +2,7 @@ import 'package:calendar_view/calendar_view.dart';
 import 'package:example/constants.dart';
 import 'package:example/theme/app_colors.dart';
 import 'package:example/theme/app_theme_extension.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'dark_app_colors.dart';
 

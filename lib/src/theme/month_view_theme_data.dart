@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'dark_app_colors.dart';
 import 'light_app_colors.dart';
